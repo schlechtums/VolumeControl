@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VolumeControl
+namespace VolumeControl.ViewModel.Types.Observers
 {
 	internal class AudioDeviceChangedObserver : IObserver<DeviceChangedArgs>
 	{

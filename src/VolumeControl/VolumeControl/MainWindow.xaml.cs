@@ -20,8 +20,12 @@ namespace VolumeControl
     /// </summary>
     public partial class MainWindow : Window
     {
+        public static MainWindow WindowSingleton;
+
         public MainWindow()
         {
+            MainWindow.WindowSingleton = this;
+
             InitializeComponent();
         }
     }
