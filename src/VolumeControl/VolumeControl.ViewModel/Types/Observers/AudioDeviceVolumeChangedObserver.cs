@@ -25,7 +25,7 @@ namespace VolumeControl.ViewModel.Types.Observers
 				advc(value);
 		}
 
-		public delegate void AudioDeviceChangedHandler(DeviceVolumeChangedArgs args);
-		public event AudioDeviceChangedHandler AudioDeviceVolumeChanged;
+		public delegate void AudioDeviceVolumeChangedHandler(DeviceVolumeChangedArgs args);
+		public event AudioDeviceVolumeChangedHandler AudioDeviceVolumeChanged;
 	}
 }
