@@ -6,23 +6,28 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using VolumeControl.ViewModel.Types.Loggers;
+using VolumeControl.ViewModel.Types.Observers;
 
-namespace VolumeControl
+namespace VolumeControl.ViewModel
 {
     public class ViewModel : INotifyPropertyChanged
     {
-        public ViewModel()
+        public ViewModel(ILogger logger)
         {
+            this._Logger = logger;
+
             this._AudioController = new CoreAudioController();
             this.CurrentDevice = this._AudioController.GetDefaultDevice(DeviceType.Playback, Role.Multimedia);
 
             var audioDeviceChangedHandler = new AudioDeviceChangedObserver();
-            audioDeviceChangedHandler.AudioDeviceChanged += AudioDeviceChangedHandler_AudioDeviceChanged;
+            audioDeviceChangedHandler.AudioDeviceChanged += this.AudioDeviceChangedHandler_AudioDeviceChanged;
 
             this._AudioController.AudioDeviceChanged.Subscribe(audioDeviceChangedHandler);
         }
 
         private CoreAudioController _AudioController;
+        private ILogger _Logger;
         #region <<< Properties >>>
         private int _DesiredVolume = new Random().Next(1, 100);
         public int DesiredVolume
@@ -57,28 +62,14 @@ namespace VolumeControl
                 }
             }
         }
-
-        private String _Messages = "";
-        public String Messages
-        {
-            get { return this._Messages; }
-            set
-            {
-                if (this._Messages != value)
-                {
-                    this._Messages = value;
-                    this.RaisePropertyChanged(nameof(Messages));
-                }
-            }
-        }
         #endregion
 
         #region <<< Methods >>>
         private void AudioDeviceChangedHandler_AudioDeviceChanged(DeviceChangedArgs args)
         {
             this.CurrentDevice = args.Device;
-            this.AddMessage($"Switched to: {this.CurrentDevice.FullName} with volume: {this.CurrentDevice.Volume}");
-            
+            this.LogMessage($"Switched to: {this.CurrentDevice.FullName} with volume: {this.CurrentDevice.Volume}");
+
             if (this.CurrentDevice.Volume != this.DesiredVolume)
             {
                 this.ChangeSelectedDeviceVolumeToDesiredVolume();
@@ -87,13 +78,13 @@ namespace VolumeControl
 
         private void ChangeSelectedDeviceVolumeToDesiredVolume()
         {
-            this.AddMessage($"Changing volume to: {this.DesiredVolume}");
+            this.LogMessage($"Changing volume to: {this.DesiredVolume}");
             this.CurrentDevice.Volume = this.DesiredVolume;
         }
 
-        public void AddMessage(String msg)
+        public void LogMessage(String msg)
         {
-            this.Messages = $"{msg}{Environment.NewLine}{this.Messages}";
+            this._Logger.Log(msg);
         }
         #endregion
 

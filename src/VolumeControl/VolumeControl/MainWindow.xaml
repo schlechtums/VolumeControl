@@ -3,13 +3,18 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:VolumeControl"
+        xmlns:localTypes="clr-namespace:VolumeControl.Types"
+        xmlns:vm="clr-namespace:VolumeControl.ViewModel;assembly=VolumeControl.ViewModel"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
         Title="Volume Control" Height="450" Width="800">
     
     <Grid Margin="3">
         <Grid.DataContext>
-            <local:ViewModel />
+            <ObjectDataProvider ObjectType="vm:ViewModel">
+                <ObjectDataProvider.ConstructorParameters>
+                    <localTypes:ViewLogger />
+                </ObjectDataProvider.ConstructorParameters>
+            </ObjectDataProvider>
         </Grid.DataContext>
         
         <Grid>
@@ -33,7 +38,7 @@
             </GroupBox>
 
             <GroupBox Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Header="Messages">
-                <TextBox Text="{Binding Messages}" />
+                <TextBox Name="_Messages" />
             </GroupBox>
         </Grid>
     </Grid>    
