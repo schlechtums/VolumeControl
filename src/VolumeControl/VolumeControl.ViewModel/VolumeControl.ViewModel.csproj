@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Types\Loggers\ConsoleLogger.cs" />
     <Compile Include="Types\Loggers\ILogger.cs" />
+    <Compile Include="Types\Observers\AudioDeviceVolumeChangedObserver.cs" />
     <Compile Include="ViewModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Types\Observers\AudioDeviceChangedObserver.cs" />

@@ -17,19 +17,38 @@ namespace VolumeControl.ViewModel
         {
             this._Logger = logger;
 
-            this._AudioController = new CoreAudioController();
-            this.CurrentDevice = this._AudioController.GetDefaultDevice(DeviceType.Playback, Role.Multimedia);
+            this._ChangingDevice = true;
+            try
+            {
+                this._AudioController = new CoreAudioController();
+                this.CurrentDevice = this._AudioController.GetDefaultDevice(DeviceType.Playback, Role.Multimedia);
+                this.DesiredVolume = (int)this.CurrentDevice.Volume;
 
-            var audioDeviceChangedHandler = new AudioDeviceChangedObserver();
-            audioDeviceChangedHandler.AudioDeviceChanged += this.AudioDeviceChangedHandler_AudioDeviceChanged;
+                this.RegisterVolumeChangedObserver();
 
-            this._AudioController.AudioDeviceChanged.Subscribe(audioDeviceChangedHandler);
+                var audioDeviceChangedHandler = new AudioDeviceChangedObserver();
+                audioDeviceChangedHandler.AudioDeviceChanged += this.AudioDeviceChangedHandler_AudioDeviceChanged;
+
+                this._AudioController.AudioDeviceChanged.Subscribe(audioDeviceChangedHandler);
+            }
+            finally
+            {
+                this._ChangingDevice = false;
+                this._InConstructor = false;
+            }
         }
 
         private CoreAudioController _AudioController;
         private ILogger _Logger;
+
+        private Boolean _ChangingDevice = false;
+        private Boolean _ChangingDeviceVolume = false;
+        private Boolean _InConstructor = true;
+        private IDisposable _VolumeChangedListener;
+        private AudioDeviceVolumeChangedObserver _VolumeChangedObserver;
+
         #region <<< Properties >>>
-        private int _DesiredVolume = new Random().Next(1, 100);
+        private int _DesiredVolume;
         public int DesiredVolume
         {
             get { return this._DesiredVolume; }
@@ -39,6 +58,9 @@ namespace VolumeControl.ViewModel
                 {
                     if (value >= 0 && value <= 100)
                     {
+                        if (!this._ChangingDevice)
+                            this.LogMessage($"Changing desired volume to: {value}");
+
                         this._DesiredVolume = value;
                         this.RaisePropertyChanged(nameof(DesiredVolume));
 
@@ -67,19 +89,72 @@ namespace VolumeControl.ViewModel
         #region <<< Methods >>>
         private void AudioDeviceChangedHandler_AudioDeviceChanged(DeviceChangedArgs args)
         {
-            this.CurrentDevice = args.Device;
-            this.LogMessage($"Switched to: {this.CurrentDevice.FullName} with volume: {this.CurrentDevice.Volume}");
-
-            if (this.CurrentDevice.Volume != this.DesiredVolume)
+            this._ChangingDevice = true;
+            try
             {
-                this.ChangeSelectedDeviceVolumeToDesiredVolume();
+                this.UnregisterVolumeChangedObserver();
+
+                this.CurrentDevice = args.Device;
+                this.LogMessage($"Switched to: {this.CurrentDevice.FullName} with existing volume: {this.CurrentDevice.Volume}");
+
+                if (this.CurrentDevice.Volume != this.DesiredVolume)
+                {
+                    this.ChangeSelectedDeviceVolumeToDesiredVolume();
+                }
+
+                this.RegisterVolumeChangedObserver();
+            }
+            finally
+            {
+                this._ChangingDevice = false;
             }
         }
 
         private void ChangeSelectedDeviceVolumeToDesiredVolume()
         {
-            this.LogMessage($"Changing volume to: {this.DesiredVolume}");
-            this.CurrentDevice.Volume = this.DesiredVolume;
+            if (!this._ChangingDeviceVolume && !this._InConstructor)
+            {
+                this._ChangingDeviceVolume = true;
+                try
+                {
+                    this.LogMessage($"Changing volume to: {this.DesiredVolume}");
+                    this.CurrentDevice.Volume = this.DesiredVolume;
+                }
+                finally
+                {
+                    this._ChangingDeviceVolume = false;
+                }
+            }
+        }
+
+        private void RegisterVolumeChangedObserver()
+        {
+            var advco = new AudioDeviceVolumeChangedObserver();
+            this._VolumeChangedObserver = advco;
+            advco.AudioDeviceVolumeChanged += this.Advco_AudioDeviceVolumeChanged;
+            this._VolumeChangedListener = this.CurrentDevice.VolumeChanged.Subscribe(advco);
+        }
+
+        private void Advco_AudioDeviceVolumeChanged(DeviceVolumeChangedArgs args)
+        {
+            if (!this._ChangingDevice && !this._ChangingDeviceVolume)
+            {
+                this._ChangingDeviceVolume = true;
+                try
+                {
+                    this.DesiredVolume = (int)args.Volume;
+                }
+                finally
+                {
+                    this._ChangingDeviceVolume = false;
+                }
+            }
+        }
+
+        private void UnregisterVolumeChangedObserver()
+        {
+            this._VolumeChangedObserver.AudioDeviceVolumeChanged -= this.Advco_AudioDeviceVolumeChanged;
+            this._VolumeChangedListener.Dispose();
         }
 
         public void LogMessage(String msg)
