@@ -1,0 +1,71 @@
+name: Create Package
+
+on: push
+
+jobs:
+  Publish-Package:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: windows-2019
+    name: Create Package
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup .NET Core @ Latest
+        uses: actions/setup-dotnet@v1
+        with:
+          source-url: https://nuget.pkg.github.com/schlechtums/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUBTOKEN}}
+
+      - name: Nuget Restore
+        run: nuget restore src\VolumeControl\VolumeControl.sln
+        
+      - name: Build Solution
+        run: |
+          cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin"
+          .\MSBuild.exe -property:Configuration=Release "-nologo" "$Env:GITHUB_WORKSPACE\src\VolumeControl\VolumeControl.sln"
+      
+      - name: Make Package Directories
+        run: |
+          mkdir package
+          mkdir package\\GUI
+          mkdir package\\Console
+
+      - name: Copy builds to package directories
+        run: |
+          xcopy src\VolumeControl\VolumeControl.Console\bin\Release package\Console\* /S /Y
+          xcopy src\VolumeControl\VolumeControl\bin\Release package\GUI\* /S /Y
+
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+
+      - name: Output tag
+        run: echo ${{steps.tag.outputs.tag}}
+
+      - name: Create Zip
+        run: |
+          Compress-Archive -Path package\* -DestinationPath "package\VolumeControl_${{steps.tag.outputs.tag}}.zip"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
+        with:
+          tag_name: ${{steps.tag.outputs.tag}}
+          release_name: ${{steps.tag.outputs.tag}}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: package\VolumeControl_${{steps.tag.outputs.tag}}.zip
+          asset_name: VolumeControl_${{steps.tag.outputs.tag}}.zip
+          asset_content_type: application/zip
