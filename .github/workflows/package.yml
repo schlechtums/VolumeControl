@@ -20,7 +20,7 @@ jobs:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUBTOKEN}}
         
       - name: Build Solution
-        run: "C:\Program Files (x86)\Microsoft Visual Studio\\019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" -nologo "src\VolumeControl\VolumeControl.sln" -property:Configuration=Release
+        run: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe" -nologo "src\\VolumeControl\\VolumeControl.sln" -property:Configuration=Release
 
       - name: Get Tag Name
         id: vars
@@ -29,17 +29,17 @@ jobs:
       - name: Make Package Directories
         run: |
           mkdir package
-          mkdir package\GUI
-          mkdir package\Console
+          mkdir package\\GUI
+          mkdir package\\Console
 
       - name: Copy builds to package directories
         run: |
-          xcopy src\VolumeControl\VolumeControl.Console\bin\Release package\Console\* /S /Y
-          xcopy src\VolumeControl\VolumeControl\bin\Release package\GUI\* /S /Y
+          xcopy src\\VolumeControl\\VolumeControl.Console\\bin\\Release package\\Console\\* /S /Y
+          xcopy src\\VolumeControl\\VolumeControl\\bin\\Release package\\GUI\\* /S /Y
 
       - name: Create Zip
         run: |
-          Compress-Archive -Path package\* -DestinationPath "package\${{ steps.vars.outputs.tag }}.zip"
+          Compress-Archive -Path package\\* -DestinationPath "package\\${{ steps.vars.outputs.tag }}.zip"
 
       - name: Create Release
         id: create_release
@@ -58,6 +58,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: package\${{ steps.vars.outputs.tag }}.zip
+          asset_path: package\\${{ steps.vars.outputs.tag }}.zip
           asset_name: ${{ steps.vars.outputs.tag }}.zip
           asset_content_type: application/zip
