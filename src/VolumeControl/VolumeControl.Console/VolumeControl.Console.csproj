@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>speaker.ico</ApplicationIcon>
+    <ApplicationIcon>..\..\..\icons\speaker.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -59,7 +59,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="speaker.ico" />
+    <Content Include="..\..\..\icons\speaker.ico">
+      <Link>speaker.ico</Link>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
