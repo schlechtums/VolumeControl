@@ -38,9 +38,16 @@ jobs:
           xcopy src\VolumeControl\VolumeControl.Console\bin\Release package\Console\* /S /Y
           xcopy src\VolumeControl\VolumeControl\bin\Release package\GUI\* /S /Y
 
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+
+      - name: Output tag
+        run: echo ${{steps.tag.outputs.tag}}
+
       - name: Create Zip
         run: |
-          Compress-Archive -Path package\* -DestinationPath "package\${{ steps.vars.outputs.tag }}.zip"
+          Compress-Archive -Path package\* -DestinationPath "package\VolumeControl_${{steps.tag.outputs.tag}}.zip"
 
       - name: Create Release
         id: create_release
@@ -48,8 +55,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{steps.tag.outputs.tag}}
+          release_name: Volume Control ${{steps.tag.outputs.tag}}
           draft: false
           prerelease: false
       - name: Upload Release Asset
@@ -59,6 +66,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: package\${{ github.ref }}.zip
-          asset_name: ${{ github.ref }}.zip
+          asset_path: package\VolumeControl_${{steps.tag.outputs.tag}}.zip
+          asset_name: VolumeControl_${{steps.tag.outputs.tag}}.zip
           asset_content_type: application/zip
