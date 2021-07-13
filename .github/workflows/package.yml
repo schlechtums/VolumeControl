@@ -30,6 +30,7 @@ jobs:
       - name: Get Tag Name
         id: vars
         run: echo "::set-output name=tag::%GITHUB_REF:*tags/=%"
+        shell: cmd
       
       - name: Make Package Directories
         run: |
