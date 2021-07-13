@@ -29,7 +29,9 @@ jobs:
 
       - name: Get Tag Name
         id: vars
-        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+        run: |
+          set VERSION=%GITHUB_REF:*tags/=%
+          echo "::set-output name=tag::%VERSION%"
       
       - name: Make Package Directories
         run: |
@@ -39,7 +41,7 @@ jobs:
 
       - name: Copy builds to package directories
         run: |
-          xcopy srcVolumeControl\VolumeControl.Console\bin\Release package\Console\* /S /Y
+          xcopy src\VolumeControl\VolumeControl.Console\bin\Release package\Console\* /S /Y
           xcopy src\VolumeControl\VolumeControl\bin\Release package\GUI\* /S /Y
 
       - name: Create Zip
