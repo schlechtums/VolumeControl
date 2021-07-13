@@ -29,9 +29,7 @@ jobs:
 
       - name: Get Tag Name
         id: vars
-        run: |
-          set VERSION=%GITHUB_REF:*tags/=%
-          echo "::set-output name=tag::%VERSION%"
+        run: echo "::set-output name=tag::%GITHUB_REF:*tags/=%"
       
       - name: Make Package Directories
         run: |
