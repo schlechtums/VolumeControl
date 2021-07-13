@@ -18,6 +18,9 @@ jobs:
           source-url: https://nuget.pkg.github.com/schlechtums/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUBTOKEN}}
+
+      - name: Nuget Restore
+        run: nuget restore src\VolumeControl\VolumeControl.sln
         
       - name: Build Solution
         run: |
