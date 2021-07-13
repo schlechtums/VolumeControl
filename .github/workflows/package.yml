@@ -20,7 +20,7 @@ jobs:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUBTOKEN}}
         
       - name: Build Solution
-        run: "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Enterprise\\MSBuild\\Current\\Bin\\MSBuild.exe" -nologo "src\VolumeControl\VolumeControl.sln" -property:Configuration=Release
+        run: "C:\Program Files (x86)\Microsoft Visual Studio\\019\Enterprise\MSBuild\Current\Bin\MSBuild.exe" -nologo "src\VolumeControl\VolumeControl.sln" -property:Configuration=Release
 
       - name: Get Tag Name
         id: vars
