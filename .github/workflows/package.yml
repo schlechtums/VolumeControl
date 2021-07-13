@@ -26,11 +26,6 @@ jobs:
         run: |
           cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin"
           .\MSBuild.exe -property:Configuration=Release "-nologo" "$Env:GITHUB_WORKSPACE\src\VolumeControl\VolumeControl.sln"
-
-      - name: Get Tag Name
-        id: vars
-        run: echo "::set-output name=tag::%GITHUB_REF:*tags/=%"
-        shell: cmd
       
       - name: Make Package Directories
         run: |
@@ -64,6 +59,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: package\${{ steps.vars.outputs.tag }}.zip
-          asset_name: ${{ steps.vars.outputs.tag }}.zip
+          asset_path: package\${{ github.ref }}.zip
+          asset_name: ${{ github.ref }}.zip
           asset_content_type: application/zip
