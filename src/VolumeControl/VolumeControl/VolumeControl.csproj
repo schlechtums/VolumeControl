@@ -38,7 +38,7 @@
   <PropertyGroup />
   <PropertyGroup />
   <PropertyGroup>
-    <ApplicationIcon>speaker.ico</ApplicationIcon>
+    <ApplicationIcon>..\..\..\icons\speaker.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -102,13 +102,15 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="speaker.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\VolumeControl.ViewModel\VolumeControl.ViewModel.csproj">
       <Project>{c18c9838-1861-4a00-b4b3-994be0e98a4b}</Project>
       <Name>VolumeControl.ViewModel</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="..\..\..\icons\speaker.ico">
+      <Link>speaker.ico</Link>
+    </Resource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
