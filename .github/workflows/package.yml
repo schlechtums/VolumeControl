@@ -1,0 +1,63 @@
+name: Create Package
+
+on: push
+
+jobs:
+  Publish-Package:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: windows-latest
+    name: Create Package
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Setup .NET Core @ Latest
+        uses: actions/setup-dotnet@v1
+        with:
+          source-url: https://nuget.pkg.github.com/schlechtums/index.json
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUBTOKEN}}
+        
+      - name: Build Solution
+        run: MSBuild.exe -nologo "src\VolumeControl\VolumeControl.sln" -property:Configuration=Release
+
+      - name: Get Tag Name
+        id: vars
+        run: echo ::set-output name=tag::${GITHUB_REF#refs/*/}
+      
+      - name: Make Package Directories
+        run: |
+          mkdir package
+          mkdir package\GUI
+          mkdir package\Console
+
+      - name: Copy builds to package directories
+        run: |
+          xcopy src\VolumeControl\VolumeControl.Console\bin\Release package\Console\* /S /Y
+          xcopy src\VolumeControl\VolumeControl\bin\Release package\GUI\* /S /Y
+
+      - name: Create Zip
+        run: |
+          Compress-Archive -Path package\* -DestinationPath "package\${{ steps.vars.outputs.tag }}.zip"
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+          asset_path: package\${{ steps.vars.outputs.tag }}.zip
+          asset_name: ${{ steps.vars.outputs.tag }}.zip
+          asset_content_type: application/zip
