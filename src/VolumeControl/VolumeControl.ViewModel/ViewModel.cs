@@ -22,6 +22,8 @@ namespace VolumeControl.ViewModel
             {
                 this._AudioController = new CoreAudioController();
                 this.CurrentDevice = this._AudioController.GetDefaultDevice(DeviceType.Playback, Role.Multimedia);
+                this._SelectedPlaybackDevice = this.CurrentDevice;
+                this.RaisePropertyChanged(nameof(SelectedPlaybackDevice));
                 this.DesiredVolume = (int)this.CurrentDevice.Volume;
 
                 this.RegisterVolumeChangedObserver();
@@ -30,6 +32,11 @@ namespace VolumeControl.ViewModel
                 audioDeviceChangedHandler.AudioDeviceChanged += this.AudioDeviceChangedHandler_AudioDeviceChanged;
 
                 this._AudioController.AudioDeviceChanged.Subscribe(audioDeviceChangedHandler);
+
+                this.PlaybackDevices = this._AudioController
+                                           .GetDevices(DeviceType.Playback)
+                                           .Where(d => d.State == DeviceState.Active)
+                                           .ToList();
             }
             finally
             {
@@ -84,29 +91,51 @@ namespace VolumeControl.ViewModel
                 }
             }
         }
+
+        public List<CoreAudioDevice> PlaybackDevices { get; set; }
+
+        private IDevice _SelectedPlaybackDevice;
+        public IDevice SelectedPlaybackDevice
+        {
+            get { return this._SelectedPlaybackDevice; }
+            set
+            {
+                if (this._SelectedPlaybackDevice != value)
+                {
+                    this._SelectedPlaybackDevice = value;
+                    this.RaisePropertyChanged(nameof(SelectedPlaybackDevice));
+
+                    this.ChangeDevice();
+                }
+            }
+        }
         #endregion
 
         #region <<< Methods >>>
         private void AudioDeviceChangedHandler_AudioDeviceChanged(DeviceChangedArgs args)
         {
-            this._ChangingDevice = true;
-            try
+            //two events were being raised, one for the newly selected device and the previously selected device
+            if (args.Device.IsDefaultDevice)
             {
-                this.UnregisterVolumeChangedObserver();
-
-                this.CurrentDevice = args.Device;
-                this.LogMessage($"Switched to: {this.CurrentDevice.FullName} with existing volume: {this.CurrentDevice.Volume}");
-
-                if (this.CurrentDevice.Volume != this.DesiredVolume)
+                this._ChangingDevice = true;
+                try
                 {
-                    this.ChangeSelectedDeviceVolumeToDesiredVolume();
-                }
+                    this.UnregisterVolumeChangedObserver();
 
-                this.RegisterVolumeChangedObserver();
-            }
-            finally
-            {
-                this._ChangingDevice = false;
+                    this.CurrentDevice = args.Device;
+                    this.LogMessage($"Switched to: {this.CurrentDevice.FullName} with existing volume: {this.CurrentDevice.Volume}");
+
+                    if (this.CurrentDevice.Volume != this.DesiredVolume)
+                    {
+                        this.ChangeSelectedDeviceVolumeToDesiredVolume();
+                    }
+
+                    this.RegisterVolumeChangedObserver();
+                }
+                finally
+                {
+                    this._ChangingDevice = false;
+                }
             }
         }
 
@@ -160,6 +189,11 @@ namespace VolumeControl.ViewModel
         public void LogMessage(String msg)
         {
             this._Logger.Log(msg);
+        }
+
+        public void ChangeDevice()
+        {
+            this._AudioController.SetDefaultDevice(this.SelectedPlaybackDevice);
         }
         #endregion
 

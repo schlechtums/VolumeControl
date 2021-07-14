@@ -19,13 +19,20 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUBTOKEN}}
 
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+
+      - name: Output tag
+        run: echo ${{steps.tag.outputs.tag}}
+
       - name: Nuget Restore
         run: nuget restore src\VolumeControl\VolumeControl.sln
         
       - name: Build Solution
         run: |
           cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin"
-          .\MSBuild.exe -property:Configuration=Release "-nologo" "$Env:GITHUB_WORKSPACE\src\VolumeControl\VolumeControl.sln"
+          .\MSBuild.exe "$Env:GITHUB_WORKSPACE\src\VolumeControl\VolumeControl.sln" -nologo "-property:Configuration=Release;AssemblyVersionNumber=${{steps.tag.outputs.tag}}" /t:Rebuild
       
       - name: Make Package Directories
         run: |
@@ -37,13 +44,6 @@ jobs:
         run: |
           xcopy src\VolumeControl\VolumeControl.Console\bin\Release package\Console\* /S /Y
           xcopy src\VolumeControl\VolumeControl\bin\Release package\GUI\* /S /Y
-
-      - name: Get tag
-        id: tag
-        uses: dawidd6/action-get-tag@v1
-
-      - name: Output tag
-        run: echo ${{steps.tag.outputs.tag}}
 
       - name: Create Zip
         run: |
