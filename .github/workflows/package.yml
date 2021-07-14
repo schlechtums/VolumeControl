@@ -32,7 +32,7 @@ jobs:
       - name: Build Solution
         run: |
           cd "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin"
-          .\MSBuild.exe "$Env:GITHUB_WORKSPACE\src\VolumeControl\VolumeControl.sln" -nologo -property:Configuration=Release;AssemblyVersionNumber=${{steps.tag.outputs.tag}} /t:Rebuild
+          .\MSBuild.exe "$Env:GITHUB_WORKSPACE\src\VolumeControl\VolumeControl.sln" -nologo "-property:Configuration=Release;AssemblyVersionNumber=${{steps.tag.outputs.tag}}" /t:Rebuild
       
       - name: Make Package Directories
         run: |
