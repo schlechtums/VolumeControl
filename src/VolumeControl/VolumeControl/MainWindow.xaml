@@ -26,6 +26,7 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
@@ -33,11 +34,16 @@
                 <TextBlock Text="{Binding CurrentDevice.FullName}" />
             </GroupBox>
 
-            <GroupBox Grid.Column="0" Grid.Row="1" Header="Desired Volume">
+            <GroupBox Grid.Column="0" Grid.Row="1" Header="Change Device">
+                <ComboBox ItemsSource="{Binding PlaybackDevices}" DisplayMemberPath="FullName"
+                          SelectedItem="{Binding SelectedPlaybackDevice}" />
+            </GroupBox>
+
+            <GroupBox Grid.Column="0" Grid.Row="2" Header="Desired Volume">
                 <TextBox Text="{Binding DesiredVolume, UpdateSourceTrigger=PropertyChanged}" />
             </GroupBox>
 
-            <GroupBox Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Header="Messages">
+            <GroupBox Grid.Column="1" Grid.Row="0" Grid.RowSpan="4" Header="Messages">
                 <TextBox Name="_Messages" />
             </GroupBox>
         </Grid>
