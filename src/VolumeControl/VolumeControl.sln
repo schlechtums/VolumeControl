@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolumeControl.ViewModel", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolumeControl.Console", "VolumeControl.Console\VolumeControl.Console.csproj", "{F142D159-F420-41B1-AE54-28F874EA7BA5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VolumeControl.Service", "VolumeControl.Service\VolumeControl.Service.csproj", "{62FBC6D9-F3B4-4D32-A2B9-7A42532F7934}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{F142D159-F420-41B1-AE54-28F874EA7BA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F142D159-F420-41B1-AE54-28F874EA7BA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F142D159-F420-41B1-AE54-28F874EA7BA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62FBC6D9-F3B4-4D32-A2B9-7A42532F7934}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62FBC6D9-F3B4-4D32-A2B9-7A42532F7934}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62FBC6D9-F3B4-4D32-A2B9-7A42532F7934}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62FBC6D9-F3B4-4D32-A2B9-7A42532F7934}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
