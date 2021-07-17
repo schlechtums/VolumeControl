@@ -47,6 +47,7 @@ jobs:
         run: |
           xcopy src\VolumeControl\VolumeControl.Console\bin\Release package\Console\* /S /Y
           xcopy src\VolumeControl\VolumeControl\bin\Release package\GUI\* /S /Y
+          xcopy src\VolumeControl\VolumeControl.Service\bin\Release package\Service\* /S /Y
 
       - name: Create Zip
         run: |
