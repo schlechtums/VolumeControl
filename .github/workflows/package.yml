@@ -1,6 +1,9 @@
 name: Create Package
 
-on: push
+on:
+  push:
+    branches:
+      - release/**
 
 jobs:
   Publish-Package:
