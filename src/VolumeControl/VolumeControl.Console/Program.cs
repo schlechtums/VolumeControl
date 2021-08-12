@@ -14,7 +14,9 @@ namespace VolumeControl.Console
         static void Main(string[] args)
         {
             var version = Assembly.GetExecutingAssembly().GetName().Version;
-            System.Console.WriteLine($"Volume Control version {version?.Major}.{version?.Minor}.{version?.Build}");
+            var title = $"Volume Control version {version?.Major}.{version?.Minor}.{version?.Build}";
+            System.Console.WriteLine(title);
+            System.Console.Title = title;
 
             new Task(() => new ViewModel.ViewModel(new ConsoleLogger())).Start();
             while (true)
